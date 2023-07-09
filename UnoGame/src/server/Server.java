@@ -1,5 +1,7 @@
 package server;
 import UNO.Game.UnoGame;
+import UNO.Player.Player;
+import messages.Messages;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -11,24 +13,44 @@ public class Server {
 
     private ServerSocket serverSocket;
     private static List<PlayerHandler> players;
+    private static List<PlayerHandler> games;
+    private final static int NUM_MAX_GAMES = 2;
 
 
     public static void main(String[] args) {
-        Server server = new Server();
-        server.startServer(1010);
-        server.acceptPlayers();
-//        Thread uno = new Thread(new UnoGame(players));
-//        uno.start();
+        while(games.size()<NUM_MAX_GAMES){
+            Server server = new Server();
+            server.startServer(1010);
+            server.acceptPlayers();
+            server.gameRooms();
+        }
     }
 
     private void startServer(int port) {
         try {
             serverSocket = new ServerSocket(port);
             players = new ArrayList<>();
+            games = new ArrayList<>();
         } catch (IOException e) {
             System.exit(1);
         }
         System.out.println("Server started!");
+    }
+
+    private void gameRooms(){
+        // Print number of active games
+        // show menu options: join a game or create a new one)
+
+
+    }
+
+    private void createGameRoom(){
+        System.out.println("New Uno Game started!");
+            UnoGame uno =  new UnoGame(players);
+            new Thread(uno).start();
+            players = new ArrayList<>();
+            acceptPlayers();
+        }
     }
 
     private void acceptPlayers() {
@@ -55,6 +77,7 @@ public class Server {
         }
 
     }
+    
 
     public class PlayerHandler implements Runnable {
 
