@@ -1,5 +1,8 @@
 package server;
 import UNO.Game.UnoGame;
+import UNO.Player.Player;
+import messages.Messages;
+import server.gameshandler.GamesHandler;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -11,27 +14,74 @@ public class Server {
 
     private ServerSocket serverSocket;
     private static List<PlayerHandler> players;
+    private static List<GamesHandler> games;
+    private static final int NUM_MAX_GAMES = 2;
 
 
     public static void main(String[] args) {
         Server server = new Server();
         server.startServer(1010);
         server.acceptPlayers();
-//        Thread uno = new Thread(new UnoGame(players));
-//        uno.start();
+        
     }
 
     private void startServer(int port) {
         try {
             serverSocket = new ServerSocket(port);
             players = new ArrayList<>();
+            games = new ArrayList<>();
         } catch (IOException e) {
             System.exit(1);
         }
         System.out.println("Server started!");
     }
 
-    private void acceptPlayers() {
+    private void chooseGameRoom(PlayerHandler ph) {
+        // show menu / options: 1. Start new UNO game 2. Join existing UNO game
+        gamesMenu(ph);
+
+    }
+
+    public void gamesMenu(PlayerHandler ph) {
+        ph.sendMessageToPlayer("Choose one of the following options (commands) to create a new game room or join an existing one: /new or /join");
+        String option = ph.receiveMessageFromPlayer();
+        switch (option.trim()){
+            case "/new":
+                ph.sendMessageToPlayer("How much players do you want in the game (min: 2, max: 10)?");
+                int nPlayers = Integer.parseInt(ph.receiveMessageFromPlayer().replaceAll("[\\D]", ""));
+                ph.sendMessageToPlayer("Define a name for the game");
+                String gameName = ph.receiveMessageFromPlayer();
+                GamesHandler game = new GamesHandler(gameName, nPlayers, games.size()+1);
+                games.add(game);
+                break;
+            case "/join":
+                listAvailableGames();
+                ph.sendMessageToPlayer("Choose the id of the game to join");
+                int gameID = Integer.parseInt(ph.receiveMessageFromPlayer().replaceAll("[\\D]", ""));
+                checkStartGame(games.get(gameID));
+                break;
+            default:
+                ph.sendMessageToPlayer("You should choose an option!");
+        }
+    }
+
+    public void listAvailableGames(){
+
+        for(GamesHandler game : games) {
+            System.out.println("Game ID: "+game.getGameID() + " |Name: " + game.getGameName() + " |Number of required players: " + game.getNMaxPlayers() + " |Number of waiting players: ");
+        }
+
+    }
+
+    public void checkStartGame(GamesHandler gh){
+        if(gh.isGameFull()){
+            System.out.println("The Game will start!");
+            UnoGame uno =  new UnoGame(gh.listPlayers());
+            new Thread(uno).start();
+        }
+    }
+
+    /* private void acceptPlayers() {
 
         if(players.size() < 3) {
             System.out.println("Waiting for players to join...");
@@ -40,6 +90,7 @@ public class Server {
                 PlayerHandler player = new PlayerHandler(socket);
                 players.add(player);
                 new Thread(player).start();
+                chooseGameRoom(player);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } finally {
@@ -54,6 +105,23 @@ public class Server {
             acceptPlayers();
         }
 
+    }
+    */
+
+    private void acceptPlayers() {
+        try {
+                Socket socket = serverSocket.accept();// blocking method!
+                PlayerHandler player = new PlayerHandler(socket);
+                players.add(player);
+                new Thread(player).start();
+                System.out.println("It is here?!");
+                chooseGameRoom(player);
+                System.out.println("Server waiting for players to play...");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            acceptPlayers();
+        }
     }
 
     public class PlayerHandler implements Runnable {
