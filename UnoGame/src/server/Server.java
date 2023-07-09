@@ -39,7 +39,8 @@ public class Server {
 
     private void gameRooms(){
         // Print number of active games
-        // show menu options: join a game or create a new one)
+        // show menu options: 1) join an existing game or 2) create a new one)
+        // 
 
 
     }
