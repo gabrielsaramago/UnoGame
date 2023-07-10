@@ -2,6 +2,8 @@ package server.gameshandler;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import UNO.Game.UnoGame;
 import server.Server.PlayerHandler;
 
 public class GamesHandler {
@@ -26,6 +28,11 @@ public class GamesHandler {
     }
 
     public void checkStartGame(){
+        if(this.isGameFull()){
+            System.out.println("The Game will start!");
+            UnoGame uno =  new UnoGame(this.listPlayers());
+            new Thread(uno).start();
+        }
 
     }
 

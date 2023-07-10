@@ -181,7 +181,8 @@ public class Server {
                 sendMessageToPlayer("Choose the id of the game to join");
                 int gameID = Integer.parseInt(receiveMessageFromPlayer().replaceAll("[\\D]", ""));
                 Server.games.get(gameID).addPlayer(this);
-                checkStartGame(Server.games.get(gameID));
+                //checkStartGame(Server.games.get(gameID));
+                Server.games.get(gameID).checkStartGame();
                 break;
             default:
                 sendMessageToPlayer("You should choose an option!");
@@ -199,7 +200,7 @@ public class Server {
 
     }
 
-    public void checkStartGame(GamesHandler gh){
+    /* public void checkStartGame(GamesHandler gh){
         if(gh.isGameFull()){
             System.out.println("The Game will start!");
             UnoGame uno =  new UnoGame(gh.listPlayers());
@@ -208,5 +209,6 @@ public class Server {
     }
 
     }
+    */
 
 }
