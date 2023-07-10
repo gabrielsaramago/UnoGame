@@ -1,5 +1,6 @@
 package server.gameshandler;
 
+import java.util.ArrayList;
 import java.util.List;
 import server.Server.PlayerHandler;
 
@@ -16,6 +17,7 @@ public class GamesHandler {
             this.NMaxPlayers = NMaxPlayers;
             this.gameName = gameName;
             this.id = id;
+            players = new ArrayList<>();
     
     }
 
@@ -33,6 +35,10 @@ public class GamesHandler {
 
     public int getNMaxPlayers(){
         return this.NMaxPlayers;
+    }
+
+    public int getPlayersJoined(){
+        return players.size();
     }
 
     public String getGameName(){

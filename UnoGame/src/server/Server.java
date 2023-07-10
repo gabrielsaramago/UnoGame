@@ -36,50 +36,9 @@ public class Server {
         System.out.println("Server started!");
     }
 
-    private void chooseGameRoom(PlayerHandler ph) {
-        // show menu / options: 1. Start new UNO game 2. Join existing UNO game
-        gamesMenu(ph);
+    
 
-    }
-
-    public void gamesMenu(PlayerHandler ph) {
-        ph.sendMessageToPlayer("Choose one of the following options (commands) to create a new game room or join an existing one: /new or /join");
-        String option = ph.receiveMessageFromPlayer();
-        switch (option.trim()){
-            case "/new":
-                ph.sendMessageToPlayer("How much players do you want in the game (min: 2, max: 10)?");
-                int nPlayers = Integer.parseInt(ph.receiveMessageFromPlayer().replaceAll("[\\D]", ""));
-                ph.sendMessageToPlayer("Define a name for the game");
-                String gameName = ph.receiveMessageFromPlayer();
-                GamesHandler game = new GamesHandler(gameName, nPlayers, games.size()+1);
-                games.add(game);
-                break;
-            case "/join":
-                listAvailableGames();
-                ph.sendMessageToPlayer("Choose the id of the game to join");
-                int gameID = Integer.parseInt(ph.receiveMessageFromPlayer().replaceAll("[\\D]", ""));
-                checkStartGame(games.get(gameID));
-                break;
-            default:
-                ph.sendMessageToPlayer("You should choose an option!");
-        }
-    }
-
-    public void listAvailableGames(){
-
-        for(GamesHandler game : games) {
-            System.out.println("Game ID: "+game.getGameID() + " |Name: " + game.getGameName() + " |Number of required players: " + game.getNMaxPlayers() + " |Number of waiting players: ");
-        }
-
-    }
-
-    public void checkStartGame(GamesHandler gh){
-        if(gh.isGameFull()){
-            System.out.println("The Game will start!");
-            UnoGame uno =  new UnoGame(gh.listPlayers());
-            new Thread(uno).start();
-        }
-    }
+    
 
     /* private void acceptPlayers() {
 
@@ -112,17 +71,19 @@ public class Server {
         try {
                 Socket socket = serverSocket.accept();// blocking method!
                 PlayerHandler player = new PlayerHandler(socket);
-                players.add(player);
+                players.add(player);                
                 new Thread(player).start();
-                System.out.println("It is here?!");
-                chooseGameRoom(player);
+                System.out.println("Player Thread started...");
+                
                 System.out.println("Server waiting for players to play...");
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
             acceptPlayers();
         }
-    }
+    }    
+
+    
 
     public class PlayerHandler implements Runnable {
 
@@ -141,6 +102,7 @@ public class Server {
             try {
                 initializeBuffers();
                 welcomeToClient();
+                chooseGameRoom();
                while (isRunning) {
 
                }
@@ -199,6 +161,51 @@ public class Server {
             isRunning = false;
             this.socket.close();
         }
+
+
+        public void chooseGameRoom() {
+        sendMessageToPlayer("Choose one of the following options (commands) to create a new game room or join an existing one: /new or /join");
+        String option = receiveMessageFromPlayer();
+        switch (option.trim()){
+            case "/new":
+                sendMessageToPlayer("How much players do you want in the game (min: 2, max: 10)?");
+                int nPlayers = Integer.parseInt(receiveMessageFromPlayer().replaceAll("[\\D]", ""));
+                sendMessageToPlayer("Define a name for the game");
+                String gameName = receiveMessageFromPlayer();
+                GamesHandler game = new GamesHandler(gameName, nPlayers, Server.games.size());
+                game.addPlayer(this);
+                Server.games.add(game);
+                break;
+            case "/join":
+                listAvailableGames();
+                sendMessageToPlayer("Choose the id of the game to join");
+                int gameID = Integer.parseInt(receiveMessageFromPlayer().replaceAll("[\\D]", ""));
+                Server.games.get(gameID).addPlayer(this);
+                checkStartGame(Server.games.get(gameID));
+                break;
+            default:
+                sendMessageToPlayer("You should choose an option!");
+        }
+
+        
+    }
+
+    public void listAvailableGames(){
+        sendMessageToPlayer("List of available games ");
+
+        for(GamesHandler game : Server.games) {
+            sendMessageToPlayer("Game ID: "+game.getGameID() + " |Name: " + game.getGameName() + " |Number of required players: " + game.getNMaxPlayers() + " |Number of waiting players: " + game.getPlayersJoined() );
+        }
+
+    }
+
+    public void checkStartGame(GamesHandler gh){
+        if(gh.isGameFull()){
+            System.out.println("The Game will start!");
+            UnoGame uno =  new UnoGame(gh.listPlayers());
+            new Thread(uno).start();
+        }
+    }
 
     }
 
