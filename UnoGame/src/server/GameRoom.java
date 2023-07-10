@@ -33,6 +33,7 @@ public class GameRoom {
             new Thread(uno).start();
             System.out.println("The Game " + getGameName() + " started!");
             Server.getWaitingGameRooms().remove(gameID);
+            
             return true;
         }
         return false;

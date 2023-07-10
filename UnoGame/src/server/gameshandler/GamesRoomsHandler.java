@@ -51,10 +51,11 @@ public class GamesRoomsHandler {
             int nPlayers = Integer.parseInt(ph.receiveMessageFromPlayer().replaceAll("[\\D]", ""));
             ph.sendMessageToPlayer("Define a name for the game");
             String gameName = ph.receiveMessageFromPlayer();
-            GameRoom game = new GameRoom(gameName, nPlayers, Server.getWaitingGameRooms().size());
+            GameRoom game = new GameRoom(gameName, nPlayers, Server.getOpenGameRooms().size());
             game.addPlayer(ph);
             Server.getWaitingGameRooms().add(game);
             Server.getOpenGameRooms().add(game);
+            
         }
 
         public int joinGame() {
