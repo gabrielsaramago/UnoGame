@@ -18,7 +18,7 @@ public class GamesRoomsHandler {
             String option = ph.receiveMessageFromPlayer();
             switch (option.trim()) {
                 case "/new":
-                    if (Server.getOpenGameRooms().size() < Server.getMaxGamesOnServer()) {
+                    if (Server.getOpenGameRooms().size() < Server.getMaxGamesOnServer() ) {
                         createGame();
                         ph.sendMessageToPlayer("Game room created. \n Waiting for other players to join this room!");
                         break;

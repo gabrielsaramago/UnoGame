@@ -31,6 +31,7 @@ public class Server {
             serverSocket = new ServerSocket(port);
             players = new ArrayList<>();
             waitingGameRooms = new ArrayList<>();
+            openGameRooms = new ArrayList<>();
         } catch (IOException e) {
             System.exit(1);
         }
