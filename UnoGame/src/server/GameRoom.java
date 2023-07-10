@@ -1,4 +1,4 @@
-package server.gameshandler;
+package server;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.List;
 import UNO.Game.UnoGame;
 import server.Server.PlayerHandler;
 
-public class GamesHandler {
+public class GameRoom {
 
     private int NMaxPlayers;
     private String gameName;
@@ -15,7 +15,7 @@ public class GamesHandler {
     private static List<PlayerHandler> players;
 
     
-    public GamesHandler(String gameName, int NMaxPlayers, int id) {
+    public GameRoom(String gameName, int NMaxPlayers, int id) {
             this.NMaxPlayers = NMaxPlayers;
             this.gameName = gameName;
             this.id = id;
@@ -27,12 +27,14 @@ public class GamesHandler {
         players.add(ph);
     }
 
-    public void checkStartGame(){
+    public boolean checkStartGame(){
         if (this.isGameFull()) {
-            UnoGame uno =  new UnoGame(this.listPlayers());
+            UnoGame uno = new UnoGame(this.listPlayers());
             new Thread(uno).start();
             System.out.println("The Game " + getGameName() + " started!");
+            return true;
         }
+        return false;
 
     }
 

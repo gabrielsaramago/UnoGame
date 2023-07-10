@@ -2,7 +2,7 @@ package server;
 import UNO.Game.UnoGame;
 import UNO.Player.Player;
 import messages.Messages;
-import server.gameshandler.GamesHandler;
+import server.gameshandler.GamesRoomsHandler;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -14,7 +14,7 @@ public class Server {
 
     private ServerSocket serverSocket;
     private static List<PlayerHandler> players;
-    private static List<GamesHandler> games;
+    private static List<GameRoom> games;
     private static final int NUM_MAX_GAMES = 2;
 
 
@@ -34,6 +34,14 @@ public class Server {
             System.exit(1);
         }
         System.out.println("Server started!");
+    }
+
+    public static List<GameRoom> getGamesOnServer() {
+        return games;
+    }
+
+    public static int getMaxGamesOnServer() {
+        return NUM_MAX_GAMES;
     }
 
     
@@ -102,7 +110,8 @@ public class Server {
             try {
                 initializeBuffers();
                 welcomeToClient();
-                chooseGameRoom();
+                GamesRoomsHandler grh  = new GamesRoomsHandler(this);
+                grh.chooseGameRoom();
                while (isRunning) {
 
                }
@@ -163,7 +172,7 @@ public class Server {
         }
 
 
-        public void chooseGameRoom() {
+        /* public void chooseGameRoom() {
             sendMessageToPlayer(
                     "Choose one of the following options (commands) to create a new game room or join an existing one: /new or /join");
             String option = receiveMessageFromPlayer();
@@ -187,7 +196,7 @@ public class Server {
             int nPlayers = Integer.parseInt(receiveMessageFromPlayer().replaceAll("[\\D]", ""));
             sendMessageToPlayer("Define a name for the game");
             String gameName = receiveMessageFromPlayer();
-            GamesHandler game = new GamesHandler(gameName, nPlayers, Server.games.size());
+            GameRoom game = new GameRoom(gameName, nPlayers, Server.games.size());
             game.addPlayer(this);
             games.add(game);
         }
@@ -220,13 +229,13 @@ public class Server {
         
         public void listAvailableGames() {
             sendMessageToPlayer("List of available games ");
-            for (GamesHandler game : Server.games) {
+            for (GameRoom game : Server.games) {
                 sendMessageToPlayer("Game ID: " + game.getGameID() + " |Name: " + game.getGameName()
                         + " |Number of required players: " + game.getNMaxPlayers() + " |Number of waiting players: "
                         + game.getPlayersJoined());
             }
         }
-        
+        */ 
     }   
 
 }
