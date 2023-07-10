@@ -164,51 +164,69 @@ public class Server {
 
 
         public void chooseGameRoom() {
-        sendMessageToPlayer("Choose one of the following options (commands) to create a new game room or join an existing one: /new or /join");
-        String option = receiveMessageFromPlayer();
-        switch (option.trim()){
-            case "/new":
-                sendMessageToPlayer("How much players do you want in the game (min: 2, max: 10)?");
-                int nPlayers = Integer.parseInt(receiveMessageFromPlayer().replaceAll("[\\D]", ""));
-                sendMessageToPlayer("Define a name for the game");
-                String gameName = receiveMessageFromPlayer();
-                GamesHandler game = new GamesHandler(gameName, nPlayers, Server.games.size());
-                game.addPlayer(this);
-                Server.games.add(game);
-                break;
-            case "/join":
-                listAvailableGames();
-                sendMessageToPlayer("Choose the id of the game to join");
-                int gameID = Integer.parseInt(receiveMessageFromPlayer().replaceAll("[\\D]", ""));
-                Server.games.get(gameID).addPlayer(this);
-                //checkStartGame(Server.games.get(gameID));
-                Server.games.get(gameID).checkStartGame();
-                break;
-            default:
-                sendMessageToPlayer("You should choose an option!");
+            sendMessageToPlayer(
+                    "Choose one of the following options (commands) to create a new game room or join an existing one: /new or /join");
+            String option = receiveMessageFromPlayer();
+            switch (option.trim()) {
+                case "/new":
+                    createGame();
+                    break;
+                case "/join":
+                    int gameID = joinGame();                    
+                    Server.games.get(gameID).checkStartGame();
+                    break;
+                default:
+                    sendMessageToPlayer("You should choose an option!");
+                    chooseGameRoom();
+            }
+
+        }
+    
+        public void createGame() {
+            sendMessageToPlayer("How much players do you want in the game (min: 2, max: 10)?");
+            int nPlayers = Integer.parseInt(receiveMessageFromPlayer().replaceAll("[\\D]", ""));
+            sendMessageToPlayer("Define a name for the game");
+            String gameName = receiveMessageFromPlayer();
+            GamesHandler game = new GamesHandler(gameName, nPlayers, Server.games.size());
+            game.addPlayer(this);
+            games.add(game);
         }
 
+        public int joinGame() {
+            listAvailableGames();
+            int gameID = readGameID();
+            while (!validateGameID(gameID)) {
+                sendMessageToPlayer("The game ID is not valid!");
+                gameID = readGameID();
+            }
+            games.get(gameID).addPlayer(this);
+
+            return gameID;
+        }
         
-    }
-
-    public void listAvailableGames(){
-        sendMessageToPlayer("List of available games ");
-
-        for(GamesHandler game : Server.games) {
-            sendMessageToPlayer("Game ID: "+game.getGameID() + " |Name: " + game.getGameName() + " |Number of required players: " + game.getNMaxPlayers() + " |Number of waiting players: " + game.getPlayersJoined() );
+        public int readGameID() {
+            sendMessageToPlayer("Insert the game ID");
+            int gameID = Integer.parseInt(receiveMessageFromPlayer().replaceAll("[\\D]", ""));
+            return gameID;
         }
 
-    }
+        public boolean validateGameID(int gameID) {
+            if (games.stream().filter(game -> game.getGameID() == gameID).count() >= 0) {
+                return true;
+            }
 
-    /* public void checkStartGame(GamesHandler gh){
-        if(gh.isGameFull()){
-            System.out.println("The Game will start!");
-            UnoGame uno =  new UnoGame(gh.listPlayers());
-            new Thread(uno).start();
+            return false;
         }
-    }
-
-    }
-    */
+        
+        public void listAvailableGames() {
+            sendMessageToPlayer("List of available games ");
+            for (GamesHandler game : Server.games) {
+                sendMessageToPlayer("Game ID: " + game.getGameID() + " |Name: " + game.getGameName()
+                        + " |Number of required players: " + game.getNMaxPlayers() + " |Number of waiting players: "
+                        + game.getPlayersJoined());
+            }
+        }
+        
+    }   
 
 }

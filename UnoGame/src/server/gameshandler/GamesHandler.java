@@ -28,10 +28,10 @@ public class GamesHandler {
     }
 
     public void checkStartGame(){
-        if(this.isGameFull()){
-            System.out.println("The Game will start!");
+        if (this.isGameFull()) {
             UnoGame uno =  new UnoGame(this.listPlayers());
             new Thread(uno).start();
+            System.out.println("The Game " + getGameName() + " started!");
         }
 
     }
