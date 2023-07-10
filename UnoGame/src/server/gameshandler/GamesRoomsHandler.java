@@ -77,7 +77,7 @@ public class GamesRoomsHandler {
         }
 
         public boolean validateGameID(int gameID) {
-            if (Server.getWaitingGameRooms().stream().filter(game -> game.getGameID() == gameID).count() >= 0) {
+            if (Server.getWaitingGameRooms().stream().filter(game -> game.getGameID() == gameID).count() > 0) {
                 return true;
             }
 
