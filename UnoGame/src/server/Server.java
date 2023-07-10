@@ -15,8 +15,8 @@ public class Server {
     private ServerSocket serverSocket;
     private static List<PlayerHandler> players;
     private static List<GameRoom> waitingGameRooms;
+    private static List<GameRoom> openGameRooms;
     private static final int NUM_MAX_GAMES = 2;
-    //private static int nGamesCreatedOnServer = 0;
 
 
     public static void main(String[] args) {
@@ -37,8 +37,12 @@ public class Server {
         System.out.println("Server started!");
     }
 
-    public static List<GameRoom> getGamesOnServer() {
+    public static List<GameRoom> getWaitingGameRooms() {
         return waitingGameRooms;
+    }
+
+    public static List<GameRoom> getOpenGameRooms() {
+        return openGameRooms;
     }
 
     public static int getMaxGamesOnServer() {

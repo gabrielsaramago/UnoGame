@@ -32,7 +32,7 @@ public class GameRoom {
             UnoGame uno = new UnoGame(this.listPlayers());
             new Thread(uno).start();
             System.out.println("The Game " + getGameName() + " started!");
-            Server.getGamesOnServer().remove(gameID);
+            Server.getWaitingGameRooms().remove(gameID);
             return true;
         }
         return false;
