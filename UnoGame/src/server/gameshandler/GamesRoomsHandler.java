@@ -30,7 +30,7 @@ public class GamesRoomsHandler {
                 case "/join":
                     if (Server.getGamesOnServer().size() > 0 ) {
                         int gameID = joinGame();
-                        if (Server.getGamesOnServer().get(gameID).checkStartGame()) {
+                        if (Server.getGamesOnServer().get(gameID).checkStartGame(gameID)) {
                             ph.sendMessageToPlayer("The game will start!");
                         }
                         ph.sendMessageToPlayer("Waiting for other players to join this room!");
