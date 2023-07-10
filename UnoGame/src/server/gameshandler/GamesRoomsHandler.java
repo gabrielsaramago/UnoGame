@@ -18,7 +18,7 @@ public class GamesRoomsHandler {
             String option = ph.receiveMessageFromPlayer();
             switch (option.trim()) {
                 case "/new":
-                    if (Server.getGamesOnServer().size() < Server.getMaxGamesOnServer()) {
+                    if (Server.getOpenGameRooms().size() < Server.getMaxGamesOnServer() ) {
                         createGame();
                         ph.sendMessageToPlayer("Game room created. \n Waiting for other players to join this room!");
                         break;
@@ -28,9 +28,9 @@ public class GamesRoomsHandler {
                     }                    
                     
                 case "/join":
-                    if (Server.getGamesOnServer().size() > 0 ) {
+                    if (Server.getWaitingGameRooms().size() > 0 ) {
                         int gameID = joinGame();
-                        if (Server.getGamesOnServer().get(gameID).checkStartGame()) {
+                        if (Server.getWaitingGameRooms().get(gameID).checkStartGame(gameID)) {
                             ph.sendMessageToPlayer("The game will start!");
                         }
                         ph.sendMessageToPlayer("Waiting for other players to join this room!");
@@ -51,9 +51,11 @@ public class GamesRoomsHandler {
             int nPlayers = Integer.parseInt(ph.receiveMessageFromPlayer().replaceAll("[\\D]", ""));
             ph.sendMessageToPlayer("Define a name for the game");
             String gameName = ph.receiveMessageFromPlayer();
-            GameRoom game = new GameRoom(gameName, nPlayers, Server.getGamesOnServer().size());
+            GameRoom game = new GameRoom(gameName, nPlayers, Server.getOpenGameRooms().size());
             game.addPlayer(ph);
-            Server.getGamesOnServer().add(game);
+            Server.getWaitingGameRooms().add(game);
+            Server.getOpenGameRooms().add(game);
+            
         }
 
         public int joinGame() {
@@ -63,7 +65,8 @@ public class GamesRoomsHandler {
                 ph.sendMessageToPlayer("The game ID is not valid!");
                 gameID = readGameID();
             }
-            Server.getGamesOnServer().get(gameID).addPlayer(ph);
+            Server.getWaitingGameRooms().get(gameID).addPlayer(ph);
+            Server.getOpenGameRooms().get(gameID).addPlayer(ph);
 
             return gameID;
         }
@@ -75,7 +78,7 @@ public class GamesRoomsHandler {
         }
 
         public boolean validateGameID(int gameID) {
-            if (Server.getGamesOnServer().stream().filter(game -> game.getGameID() == gameID).count() >= 0) {
+            if (Server.getWaitingGameRooms().stream().filter(game -> game.getGameID() == gameID).count() > 0) {
                 return true;
             }
 
@@ -84,7 +87,7 @@ public class GamesRoomsHandler {
         
         public void listAvailableGames() {
             ph.sendMessageToPlayer("List of available games ");
-            for (GameRoom game : Server.getGamesOnServer()) {
+            for (GameRoom game : Server.getWaitingGameRooms()) {
                 ph.sendMessageToPlayer("Game ID: " + game.getGameID() + " |Name: " + game.getGameName()
                         + " |Number of required players: " + game.getNMaxPlayers() + " |Number of waiting players: "
                         + game.getPlayersJoined());

@@ -27,11 +27,13 @@ public class GameRoom {
         players.add(ph);
     }
 
-    public boolean checkStartGame(){
+    public boolean checkStartGame(int gameID){
         if (this.isGameFull()) {
             UnoGame uno = new UnoGame(this.listPlayers());
             new Thread(uno).start();
             System.out.println("The Game " + getGameName() + " started!");
+            Server.getWaitingGameRooms().remove(gameID);
+            
             return true;
         }
         return false;

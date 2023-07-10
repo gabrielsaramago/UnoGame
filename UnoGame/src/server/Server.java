@@ -14,7 +14,8 @@ public class Server {
 
     private ServerSocket serverSocket;
     private static List<PlayerHandler> players;
-    private static List<GameRoom> games;
+    private static List<GameRoom> waitingGameRooms;
+    private static List<GameRoom> openGameRooms;
     private static final int NUM_MAX_GAMES = 2;
 
 
@@ -29,51 +30,25 @@ public class Server {
         try {
             serverSocket = new ServerSocket(port);
             players = new ArrayList<>();
-            games = new ArrayList<>();
+            waitingGameRooms = new ArrayList<>();
+            openGameRooms = new ArrayList<>();
         } catch (IOException e) {
             System.exit(1);
         }
         System.out.println("Server started!");
     }
 
-    public static List<GameRoom> getGamesOnServer() {
-        return games;
+    public static List<GameRoom> getWaitingGameRooms() {
+        return waitingGameRooms;
+    }
+
+    public static List<GameRoom> getOpenGameRooms() {
+        return openGameRooms;
     }
 
     public static int getMaxGamesOnServer() {
         return NUM_MAX_GAMES;
     }
-
-    
-
-    
-
-    /* private void acceptPlayers() {
-
-        if(players.size() < 3) {
-            System.out.println("Waiting for players to join...");
-            try {
-                Socket socket = serverSocket.accept();// blocking method!
-                PlayerHandler player = new PlayerHandler(socket);
-                players.add(player);
-                new Thread(player).start();
-                chooseGameRoom(player);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } finally {
-                acceptPlayers();
-            }
-        }
-        else{
-            System.out.println("New Uno Game started!");
-            UnoGame uno =  new UnoGame(players);
-            new Thread(uno).start();
-            players = new ArrayList<>();
-            acceptPlayers();
-        }
-
-    }
-    */
 
     private void acceptPlayers() {
         try {
@@ -170,72 +145,6 @@ public class Server {
             isRunning = false;
             this.socket.close();
         }
-
-
-        /* public void chooseGameRoom() {
-            sendMessageToPlayer(
-                    "Choose one of the following options (commands) to create a new game room or join an existing one: /new or /join");
-            String option = receiveMessageFromPlayer();
-            switch (option.trim()) {
-                case "/new":
-                    createGame();
-                    break;
-                case "/join":
-                    int gameID = joinGame();                    
-                    Server.games.get(gameID).checkStartGame();
-                    break;
-                default:
-                    sendMessageToPlayer("You should choose an option!");
-                    chooseGameRoom();
-            }
-
-        }
-    
-        public void createGame() {
-            sendMessageToPlayer("How much players do you want in the game (min: 2, max: 10)?");
-            int nPlayers = Integer.parseInt(receiveMessageFromPlayer().replaceAll("[\\D]", ""));
-            sendMessageToPlayer("Define a name for the game");
-            String gameName = receiveMessageFromPlayer();
-            GameRoom game = new GameRoom(gameName, nPlayers, Server.games.size());
-            game.addPlayer(this);
-            games.add(game);
-        }
-
-        public int joinGame() {
-            listAvailableGames();
-            int gameID = readGameID();
-            while (!validateGameID(gameID)) {
-                sendMessageToPlayer("The game ID is not valid!");
-                gameID = readGameID();
-            }
-            games.get(gameID).addPlayer(this);
-
-            return gameID;
-        }
-        
-        public int readGameID() {
-            sendMessageToPlayer("Insert the game ID");
-            int gameID = Integer.parseInt(receiveMessageFromPlayer().replaceAll("[\\D]", ""));
-            return gameID;
-        }
-
-        public boolean validateGameID(int gameID) {
-            if (games.stream().filter(game -> game.getGameID() == gameID).count() >= 0) {
-                return true;
-            }
-
-            return false;
-        }
-        
-        public void listAvailableGames() {
-            sendMessageToPlayer("List of available games ");
-            for (GameRoom game : Server.games) {
-                sendMessageToPlayer("Game ID: " + game.getGameID() + " |Name: " + game.getGameName()
-                        + " |Number of required players: " + game.getNMaxPlayers() + " |Number of waiting players: "
-                        + game.getPlayersJoined());
-            }
-        }
-        */ 
     }   
 
 }
