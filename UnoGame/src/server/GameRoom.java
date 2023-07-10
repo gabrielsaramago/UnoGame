@@ -28,6 +28,8 @@ public class GameRoom {
     }
 
     public boolean checkStartGame(int gameID){
+        System.out.println("Checking Start Game " + gameID + " - " + this.isGameFull());
+        
         if (this.isGameFull()) {
             UnoGame uno = new UnoGame(this.listPlayers());
             new Thread(uno).start();

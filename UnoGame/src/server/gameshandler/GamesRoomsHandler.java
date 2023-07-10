@@ -18,7 +18,7 @@ public class GamesRoomsHandler {
             String option = ph.receiveMessageFromPlayer();
             switch (option.trim()) {
                 case "/new":
-                    if (Server.getOpenGameRooms().size() < Server.getMaxGamesOnServer() ) {
+                    if (Server.getWaitingGameRooms().size() <= Server.getMaxGamesOnServer() ) {
                         createGame();
                         ph.sendMessageToPlayer("Game room created. \n Waiting for other players to join this room!");
                         break;
@@ -30,6 +30,7 @@ public class GamesRoomsHandler {
                 case "/join":
                     if (Server.getWaitingGameRooms().size() > 0 ) {
                         int gameID = joinGame();
+                        ph.sendMessageToPlayer("you will join game " + gameID);
                         if (Server.getWaitingGameRooms().get(gameID).checkStartGame(gameID)) {
                             ph.sendMessageToPlayer("The game will start!");
                         }
@@ -37,7 +38,7 @@ public class GamesRoomsHandler {
                         break;
                     }
                     ph.sendMessageToPlayer("There are no games available! Please, select /new to create a new game!");
-                    chooseGameRoom();    
+                    
                     
                 default:
                     ph.sendMessageToPlayer("You should choose an option!");
@@ -51,10 +52,9 @@ public class GamesRoomsHandler {
             int nPlayers = Integer.parseInt(ph.receiveMessageFromPlayer().replaceAll("[\\D]", ""));
             ph.sendMessageToPlayer("Define a name for the game");
             String gameName = ph.receiveMessageFromPlayer();
-            GameRoom game = new GameRoom(gameName, nPlayers, Server.getOpenGameRooms().size());
+            GameRoom game = new GameRoom(gameName, nPlayers, Server.getWaitingGameRooms().size());
             game.addPlayer(ph);
             Server.getWaitingGameRooms().add(game);
-            Server.getOpenGameRooms().add(game);
             
         }
 
@@ -66,7 +66,6 @@ public class GamesRoomsHandler {
                 gameID = readGameID();
             }
             Server.getWaitingGameRooms().get(gameID).addPlayer(ph);
-            Server.getOpenGameRooms().get(gameID).addPlayer(ph);
 
             return gameID;
         }

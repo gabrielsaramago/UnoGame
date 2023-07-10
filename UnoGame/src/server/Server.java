@@ -15,7 +15,6 @@ public class Server {
     private ServerSocket serverSocket;
     private static List<PlayerHandler> players;
     private static List<GameRoom> waitingGameRooms;
-    private static List<GameRoom> openGameRooms;
     private static final int NUM_MAX_GAMES = 2;
 
 
@@ -31,7 +30,6 @@ public class Server {
             serverSocket = new ServerSocket(port);
             players = new ArrayList<>();
             waitingGameRooms = new ArrayList<>();
-            openGameRooms = new ArrayList<>();
         } catch (IOException e) {
             System.exit(1);
         }
@@ -42,9 +40,6 @@ public class Server {
         return waitingGameRooms;
     }
 
-    public static List<GameRoom> getOpenGameRooms() {
-        return openGameRooms;
-    }
 
     public static int getMaxGamesOnServer() {
         return NUM_MAX_GAMES;
